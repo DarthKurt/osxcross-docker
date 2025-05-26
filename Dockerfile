@@ -13,7 +13,6 @@ ARG OSX_CROSS_BRANCH="2.0-llvm-based"
 ARG BASE_IMAGE="docker.io/debian"
 ARG BASE_IMAGE_VARIANT="bookworm"
 
-# Base Image
 FROM ${BASE_IMAGE}:${BASE_IMAGE_VARIANT}
 
 # +-----------------------------+
@@ -62,7 +61,6 @@ RUN \
 ENV LANG="en_US.utf8"
 ENV DEBIAN_FRONTEND="noninteractive"
 
-# Install dependencies
 RUN \
     apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -81,7 +79,11 @@ RUN \
     patch \
     xz-utils
 
-# Clone osxcross to /workspace/osxcross as a shallow copy
+# +-----------------------------+
+# | OSXCross                    |
+# +-----------------------------+
+
+## Clone osxcross to /workspace/osxcross as a shallow copy
 RUN \
     git clone \
     --branch ${OSX_CROSS_BRANCH} \
@@ -91,7 +93,6 @@ RUN \
     && cd "/osxcross" \
     && git checkout ${OSX_CROSS_COMMIT}
 
-# Set PATH for osxcross tools (populated after build)
 ENV PATH="/usr/lib/llvm-19/bin:${PATH}"
 ENV UNATTENDED=1
 

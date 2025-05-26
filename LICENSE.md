@@ -27,5 +27,5 @@ This project uses the following third-party software:
 ### osxcross
 
 - License: GPL-2.0
-- Source: https://github.com/tpoechtrager/osxcross
+- Source: [tpoechtrager/osxcross](https://github.com/tpoechtrager/osxcross)
 - Usage: Cross-compilation toolchain for macOS targets
