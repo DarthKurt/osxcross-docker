@@ -4,6 +4,9 @@ on:
   push:
     branches: ["main"]
 
+env:
+  VERSION: 0.1.0-${{ github.sha }}
+
 jobs:
   docker:
     runs-on: ubuntu-latest
@@ -27,7 +30,18 @@ jobs:
 
       - name: Build and push
         uses: docker/build-push-action@v6
+        env:
+          # https://github.com/orgs/community/discussions/45969
+          BUILDX_NO_DEFAULT_ATTESTATIONS: 1
         with:
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/${{ steps.lowercase_owner.outputs.owner }}/osxcross-builder:latest
+          tags: |
+            ghcr.io/${{ steps.lowercase_owner.outputs.owner }}/osxcross-builder:${{ env.VERSION }}
+            ghcr.io/${{ steps.lowercase_owner.outputs.owner }}/osxcross-builder:latest
+          build-args: |
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VERSION=${{ env.VERSION }}
+            VCS_URL=https://github.com/${{ github.repository }}
+            VCS_REF=${{ github.sha }}
+            IMAGE_URL=https://github.com/${{ github.repository }}
