@@ -1,5 +1,7 @@
 # OSXCross Docker
 
+[![Docker Image CI](https://github.com/DarthKurt/osxcross-docker/actions/workflows/docker-image.yml/badge.svg)](https://github.com/DarthKurt/osxcross-docker/actions/workflows/docker-image.yml)
+
 A Dockerized wrapper for [osxcross](https://github.com/tpoechtrager/osxcross).
 
 ## About
@@ -14,7 +16,7 @@ To use the container, supply a valid [packaged macOS SDK tarball](https://github
 
 All credits for the toolchain itself go to the original [osxcross](https://github.com/tpoechtrager/osxcross) project.
 
-## HOWTO
+## How to use
 
 ```sh
 
