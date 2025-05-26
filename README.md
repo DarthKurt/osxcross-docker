@@ -1,11 +1,18 @@
-# osxcross-docker
+# OSXCross Docker
 
 A Dockerized wrapper for [osxcross](https://github.com/tpoechtrager/osxcross).
 
 ## About
 
-This project packages the [osxcross](https://github.com/tpoechtrager/osxcross) toolchain into a Docker container, simplifying the process of building and using macOS cross-compilers on non-macOS systems.
-All credits for the toolchain itself go to the original osxcross project.
+This project packages the [osxcross](https://github.com/tpoechtrager/osxcross) toolchain into a Docker container.
+
+It streamlines the setup of macOS cross-compilers on non-macOS systems by abstracting environment configuration and dependency management.
+
+**[Please ensure you have read and understood the Xcode license terms before continuing.](https://www.apple.com/legal/sla/docs/xcode.pdf)**
+
+To use the container, supply a valid [packaged macOS SDK tarball](https://github.com/tpoechtrager/osxcross#packaging-the-sdk) and mount a directory where the toolchain should be installed.
+
+All credits for the toolchain itself go to the original [osxcross](https://github.com/tpoechtrager/osxcross) project.
 
 ## HOWTO
 
