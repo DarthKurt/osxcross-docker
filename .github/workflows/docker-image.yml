@@ -5,7 +5,9 @@ on:
     branches: ["main"]
 
 env:
-  VERSION: 0.1.0-${{ github.sha }}
+  VERSION: "0.1.0-${{ github.sha }}"
+  BUILD_DATE: ${{ github.event.head_commit.timestamp }}
+  IMAGE_REPO: "https://github.com/${{ github.repository }}"
 
 jobs:
   docker:
@@ -40,8 +42,14 @@ jobs:
             ghcr.io/${{ steps.lowercase_owner.outputs.owner }}/osxcross-builder:${{ env.VERSION }}
             ghcr.io/${{ steps.lowercase_owner.outputs.owner }}/osxcross-builder:latest
           build-args: |
-            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            BUILD_DATE=${{ env.BUILD_DATE }}
             VERSION=${{ env.VERSION }}
-            VCS_URL=https://github.com/${{ github.repository }}
+            VCS_URL=${{ env.IMAGE_REPO }}
             VCS_REF=${{ github.sha }}
-            IMAGE_URL=https://github.com/${{ github.repository }}
+            IMAGE_URL=${{ env.IMAGE_REPO }}
+          annotations: |
+            org.opencontainers.image.created=${{ env.BUILD_DATE }}
+            org.opencontainers.image.version=${{ env.VERSION }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=${{ env.IMAGE_REPO }}
+            org.opencontainers.image.url=${{ env.IMAGE_REPO }}

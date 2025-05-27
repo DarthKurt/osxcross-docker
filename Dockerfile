@@ -47,7 +47,6 @@ LABEL org.opencontainers.image.title="OSXCross Docker"
 LABEL org.opencontainers.image.vendor="DarthKurt"
 LABEL org.opencontainers.image.licenses="MIT"
 
-
 # +-----------------------------+
 # | PRE-REQUISITE/INIT PACKAGES |
 # +-----------------------------+
