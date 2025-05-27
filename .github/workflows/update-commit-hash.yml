@@ -21,24 +21,24 @@ jobs:
         run: |
           LATEST_COMMIT=$(git ls-remote ${{ env.UPSTREAM_REPO }} refs/heads/${{ env.UPSTREAM_BRANCH }} | cut -f1)
           echo "LATEST_COMMIT=${LATEST_COMMIT}"
-          echo "latest_commit=${LATEST_COMMIT}" >> $GITHUB_OUTPUT
+          echo "latest_commit=${LATEST_COMMIT}" >> "$GITHUB_OUTPUT"
 
       - name: Get current OSXCross commit from Dockerfile
         id: current
         run: |
           CURRENT_COMMIT=$(grep '^ARG OSX_CROSS_COMMIT=' Dockerfile | cut -d'"' -f2)
           echo "CURRENT_COMMIT=${CURRENT_COMMIT}"
-          echo "current_commit=${CURRENT_COMMIT}" >> $GITHUB_OUTPUT
+          echo "current_commit=${CURRENT_COMMIT}" >> "$GITHUB_OUTPUT"
 
       - name: Check if update is needed
         id: check
         run: |
           if [ "${{ steps.latest.outputs.latest_commit }}" = "${{ steps.current.outputs.current_commit }}" ]; then
             echo "No update is required."
-            echo "::set-output name=update_needed::false"
+            echo "update_needed=false" >> "$GITHUB_OUTPUT"
           else
             echo "Update required."
-            echo "::set-output name=update_needed::true"
+            echo "update_needed=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Check if branch already exists
@@ -48,9 +48,9 @@ jobs:
           BRANCH_NAME="update-osxcross-commit-${{ steps.latest.outputs.latest_commit }}"
           if git ls-remote --exit-code --heads origin ${BRANCH_NAME}; then
             echo "Branch ${BRANCH_NAME} already exists."
-            echo "::set-output name=branch_exists::true"
+            echo "branch_exists=true" >> "$GITHUB_OUTPUT"
           else
-            echo "::set-output name=branch_exists::false"
+            echo "branch_exists=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Update commit hash and push changes
