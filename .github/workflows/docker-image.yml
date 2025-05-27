@@ -64,6 +64,15 @@ jobs:
           tags: |
             ghcr.io/${{ steps.lowercase_owner.outputs.owner }}/osxcross-builder:${{ env.VERSION }}
             ghcr.io/${{ steps.lowercase_owner.outputs.owner }}/osxcross-builder:latest
+          annotations: |
+            index:org.opencontainers.image.description=${{ env.IMAGE_DESCRIPTION }}
+            index:org.opencontainers.image.description=${{ env.IMAGE_DESCRIPTION }}
+            index:org.opencontainers.image.description="${{ env.IMAGE_DESCRIPTION }}"
+            index:org.opencontainers.image.vendor="${{ github.repository_owner }}"
+            index:org.opencontainers.image.title="${{ env.IMAGE_TITLE }}"
+            index:org.opencontainers.image.licenses=${{ env.IMAGE_LICENSE }}
+            index:org.opencontainers.image.source=${{ env.IMAGE_REPO }}
+            index:org.opencontainers.image.url=${{ env.IMAGE_REPO }}
 
       - name: Generate Artifact Attestation
         uses: actions/attest-build-provenance@v2
@@ -112,18 +121,22 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Get Docker Metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ steps.lowercase_owner.outputs.owner }}/osxcross-builder
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
         run: |
           docker buildx imagetools create \
-            --annotation org.opencontainers.image.description="${{ env.IMAGE_DESCRIPTION }}" \
-            --annotation org.opencontainers.image.vendor="${{ github.repository_owner }}" \
-            --annotation org.opencontainers.image.title="${{ env.IMAGE_TITLE }}" \
-            --annotation org.opencontainers.image.licenses=${{ env.IMAGE_LICENSE }} \
-            --annotation org.opencontainers.image.source=${{ env.IMAGE_REPO }} \
-            --annotation org.opencontainers.image.url=${{ env.IMAGE_REPO }} \
-            -t ghcr.io/${{ steps.lowercase_owner.outputs.owner }}/osxcross-builder:${{ env.VERSION }} \
-            -t ghcr.io/${{ steps.lowercase_owner.outputs.owner }}/osxcross-builder:latest \
+            $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
             $(printf 'ghcr.io/${{ steps.lowercase_owner.outputs.owner }}/osxcross-builder@sha256:%s ' *)
 
       - name: Inspect Image
