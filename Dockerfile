@@ -6,7 +6,12 @@ ARG VERSION
 ARG VCS_URL
 ARG VCS_REF
 ARG IMAGE_URL
+ARG IMAGE_VENDOR
+ARG IMAGE_DESCRIPTION
+ARG IMAGE_TITLE
+ARG LICENSE
 
+ARG OSX_CROSS_REPO="https://github.com/tpoechtrager/osxcross"
 ARG OSX_CROSS_COMMIT="593fe0260fc7fd4e4ed9462a516b4a5cd454c3ac"
 ARG OSX_CROSS_BRANCH="2.0-llvm-based"
 
@@ -25,12 +30,15 @@ ARG VERSION
 ARG VCS_URL
 ARG VCS_REF
 ARG IMAGE_URL
+ARG IMAGE_VENDOR
+ARG IMAGE_DESCRIPTION
+ARG IMAGE_TITLE
+ARG LICENSE
 
 ARG BASE_IMAGE
 ARG BASE_IMAGE_VARIANT
 ARG OSX_CROSS_COMMIT
 ARG OSX_CROSS_BRANCH
-
 
 # +-----------------------------+
 # | Labels                      |
@@ -42,10 +50,10 @@ LABEL org.opencontainers.image.version=${VERSION}
 LABEL org.opencontainers.image.source=${VCS_URL}
 LABEL org.opencontainers.image.revision=${VCS_REF}
 LABEL org.opencontainers.image.url=${IMAGE_URL}
-LABEL org.opencontainers.image.description="A Dockerized wrapper for OSXCross toolchain builder"
-LABEL org.opencontainers.image.title="OSXCross Docker"
-LABEL org.opencontainers.image.vendor="DarthKurt"
-LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.description=${IMAGE_DESCRIPTION}
+LABEL org.opencontainers.image.title=${IMAGE_TITLE}
+LABEL org.opencontainers.image.vendor=${IMAGE_VENDOR}
+LABEL org.opencontainers.image.licenses=${LICENSE}
 
 # +-----------------------------+
 # | PRE-REQUISITE/INIT PACKAGES |
@@ -88,7 +96,7 @@ RUN \
     --branch ${OSX_CROSS_BRANCH} \
     --single-branch \
     --depth 1 \
-    "https://github.com/tpoechtrager/osxcross" "/osxcross" \
+    ${OSX_CROSS_REPO} "/osxcross" \
     && cd "/osxcross" \
     && git checkout ${OSX_CROSS_COMMIT}
 
