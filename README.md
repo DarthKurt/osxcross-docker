@@ -33,7 +33,6 @@ For example:
 ```sh
 
 docker run \
-  -e UNATTENDED='true' \
   -v ${HOME}/SDKs/MacOSX15.4.sdk.tar.xz:/osxcross/tarballs/MacOSX15.4.sdk.tar.xz \
   -v ${HOME}/SDKs/osxcross-osx-15.4:/osxcross/target \
   --rm \
