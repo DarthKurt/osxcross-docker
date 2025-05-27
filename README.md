@@ -24,7 +24,7 @@ docker run \
   -v path/to/MacOSXxxx.sdk.tar.xz:/osxcross/tarballs/MacOSXxxx.sdk.tar.xz \
   -v path/to/osxcross-toolchain:/osxcross/target \
   --rm \
-  osxcross-builder
+  darthkurt/osxcross-builder:latest
 
 ```
 
@@ -36,6 +36,6 @@ docker run \
   -v ${HOME}/SDKs/MacOSX15.4.sdk.tar.xz:/osxcross/tarballs/MacOSX15.4.sdk.tar.xz \
   -v ${HOME}/SDKs/osxcross-osx-15.4:/osxcross/target \
   --rm \
-  osxcross-builder
+  darthkurt/osxcross-builder:latest
 
 ```
