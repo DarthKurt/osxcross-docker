@@ -1,0 +1,82 @@
+name: Update OSXCross Commit Hash
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # runs daily at midnight UTC
+  workflow_dispatch:
+
+env:
+  UPSTREAM_REPO: "https://github.com/tpoechtrager/osxcross.git"
+  UPSTREAM_BRANCH: "2.0-llvm-based"
+
+jobs:
+  update-commit-hash:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Fetch latest commit from upstream branch
+        id: latest
+        run: |
+          LATEST_COMMIT=$(git ls-remote ${{ env.UPSTREAM_REPO }} refs/heads/${{ env.UPSTREAM_BRANCH }} | cut -f1)
+          echo "LATEST_COMMIT=${LATEST_COMMIT}"
+          echo "latest_commit=${LATEST_COMMIT}" >> $GITHUB_OUTPUT
+
+      - name: Get current OSXCross commit from Dockerfile
+        id: current
+        run: |
+          CURRENT_COMMIT=$(grep '^ARG OSX_CROSS_COMMIT=' Dockerfile | cut -d'"' -f2)
+          echo "CURRENT_COMMIT=${CURRENT_COMMIT}"
+          echo "current_commit=${CURRENT_COMMIT}" >> $GITHUB_OUTPUT
+
+      - name: Check if update is needed
+        id: check
+        run: |
+          if [ "${{ steps.latest.outputs.latest_commit }}" = "${{ steps.current.outputs.current_commit }}" ]; then
+            echo "No update is required."
+            echo "::set-output name=update_needed::false"
+          else
+            echo "Update required."
+            echo "::set-output name=update_needed::true"
+          fi
+
+      - name: Check if branch already exists
+        id: branch-check
+        if: steps.check.outputs.update_needed == 'true'
+        run: |
+          BRANCH_NAME="update-osxcross-commit-${{ steps.latest.outputs.latest_commit }}"
+          if git ls-remote --exit-code --heads origin ${BRANCH_NAME}; then
+            echo "Branch ${BRANCH_NAME} already exists."
+            echo "::set-output name=branch_exists::true"
+          else
+            echo "::set-output name=branch_exists::false"
+          fi
+
+      - name: Update commit hash and push changes
+        if: steps.check.outputs.update_needed == 'true' && steps.branch-check.outputs.branch_exists == 'false'
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          BRANCH_NAME="update-osxcross-commit-${{ steps.latest.outputs.latest_commit }}"
+          git checkout -b ${BRANCH_NAME}
+          sed -i "s/^ARG OSX_CROSS_COMMIT=.*/ARG OSX_CROSS_COMMIT=\"${{ steps.latest.outputs.latest_commit }}\"/" Dockerfile
+          git add Dockerfile
+          git commit -m "Bump OSXCross commit hash to ${{ steps.latest.outputs.latest_commit }}"
+          git push origin ${BRANCH_NAME}
+
+      - name: Create Pull Request
+        if: steps.check.outputs.update_needed == 'true' && steps.branch-check.outputs.branch_exists == 'false'
+        uses: peter-evans/create-pull-request@v4
+        with:
+          branch: update-osxcross-commit-${{ steps.latest.outputs.latest_commit }}
+          base: main
+          title: "Update OSXCross commit hash to ${{ steps.latest.outputs.latest_commit }}"
+          body: |
+            Updates the OSXCross commit hash used in the Dockerfile to the latest commit from the upstream repository ${{ env.UPSTREAM_REPO }} branch ${{ env.UPSTREAM_BRANCH }}.
+      - name: Skip PR creation when branch exists
+        if: steps.branch-check.outputs.branch_exists == 'true'
+        run: echo "Update branch already exists. Skipping PR creation."
+      - name: Skip update when no change needed
+        if: steps.check.outputs.update_needed == 'false'
+        run: echo "Current commit hash is up to date. No action taken."
